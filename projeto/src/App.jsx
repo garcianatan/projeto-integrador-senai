@@ -14,7 +14,7 @@ import ListaUsuarios from "./pages/ListaUsuarios";
 import CadastroUsuario from "./pages/CadastroUsuario";
 import EditarUsuario from "./pages/EditarUsuario";
 
-import Perfil from "./pages/Perfl";
+import Perfil from "./pages/Perfil";
 import "./App.css";
 
 export default function App() {

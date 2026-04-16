@@ -176,6 +176,63 @@ const atualizarPerfil = async (req, res) => {
   }
 };
 
+const buscarPerfil = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (Number(id) !== Number(req.usuario.id)) {
+      return res.status(403).json({
+        erro: "Você só pode acessar o seu próprio perfil"
+      });
+    }
+
+    const usuario = await usuarioModel.buscarPorId(id);
+
+    if (!usuario) {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
+
+    res.json(usuario);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: "Erro ao buscar perfil" });
+  }
+};
+
+const alterarMinhaSenha = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { novaSenha } = req.body;
+
+    if (Number(id) !== Number(req.usuario.id)) {
+      return res.status(403).json({
+        erro: "Você só pode alterar a sua própria senha"
+      });
+    }
+
+    if (!novaSenha || !novaSenha.trim()) {
+      return res.status(400).json({
+        erro: "Nova senha é obrigatória"
+      });
+    }
+
+    const usuario = await usuarioModel.buscarPorId(id);
+
+    if (!usuario) {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
+
+    const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
+
+    await usuarioModel.atualizarSenhaPorId(id, senhaCriptografada);
+
+    res.json({ mensagem: "Senha atualizada com sucesso" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: "Erro ao alterar senha" });
+  }
+};
+
 module.exports = {
   listarUsuarios,
   buscarUsuarioPorId,
@@ -183,5 +240,7 @@ module.exports = {
   desativarUsuario,
   reativarUsuario,
   alterarSenhaUsuario,
-  atualizarPerfil
+  atualizarPerfil,
+  buscarPerfil,
+  alterarMinhaSenha
 };
