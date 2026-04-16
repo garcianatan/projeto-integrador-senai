@@ -12,8 +12,20 @@ export default function DetalheOS() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const handleGerarPDF = () => {
-    window.open(`http://localhost:3001/ordens/${os.id}/pdf`, "_blank");
+  const handleGerarPDF = async () => {
+    try {
+      const response = await api.get(`/ordens/${os.id}/pdf`, {
+        responseType: "blob",
+      });
+  
+      const file = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(file);
+  
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      alert("Erro ao gerar PDF");
+    }
   };
 
   useEffect(() => {
