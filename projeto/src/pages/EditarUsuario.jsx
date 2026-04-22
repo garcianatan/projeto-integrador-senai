@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
 import "./CadastroUsuario.css";
+import toast from "react-hot-toast";
 
 export default function EditarUsuario() {
   const { id } = useParams();
@@ -26,7 +27,7 @@ export default function EditarUsuario() {
       setTipo(resposta.data.tipo);
     } catch (error) {
       console.error(error);
-      alert("Erro ao carregar usuário");
+      toast.error("Erro ao carregar usuário");
     }
   }
 
@@ -37,7 +38,7 @@ export default function EditarUsuario() {
       Number(usuarioLogado?.id) === Number(id) &&
       tipo !== "admin"
     ) {
-      alert("Você não pode alterar seu próprio tipo de admin");
+      toast.error("Você não pode alterar seu próprio tipo de admin");
       return;
     }
 
@@ -55,11 +56,11 @@ export default function EditarUsuario() {
         });
       }
 
-      alert("Usuário atualizado com sucesso");
+      toast.success("Usuário atualizado com sucesso");
       navigate("/usuarios");
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao atualizar usuário");
+      toast.error(error?.response?.data?.erro || "Erro ao atualizar usuário");
     }
   }
 

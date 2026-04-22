@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../services/api";
 import imagemFundo from "../assets/img-fablab.jpg";
 import "./Login.css";
@@ -22,9 +23,11 @@ export default function Login() {
       sessionStorage.setItem("token", resposta.data.token);
       sessionStorage.setItem("usuario", JSON.stringify(resposta.data.usuario));
 
+      toast.success("Login realizado com sucesso");
+
       navigate("/");
     } catch (error) {
-      alert(error?.response?.data?.erro || "Erro ao realizar login");
+      toast.error(error?.response?.data?.erro || "Erro ao realizar login");
     }
   }
 

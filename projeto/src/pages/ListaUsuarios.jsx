@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./ListaUsuarios.css";
 import { FaTrash, FaEdit, FaSignOutAlt } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 export default function ListaUsuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -25,13 +26,13 @@ export default function ListaUsuarios() {
       const resposta = await api.get("/usuarios");
       setUsuarios(resposta.data);
     } catch (error) {
-      alert("Erro ao carregar usuários");
+      toast.error("Erro ao carregar usuários");
     }
   }
 
   async function desativarUsuario(id) {
     if (usuarioLogado?.id === id) {
-      alert("Você não pode desativar seu próprio usuário");
+      toast.error("Você não pode desativar seu próprio usuário");
       return;
     }
 
@@ -44,7 +45,7 @@ export default function ListaUsuarios() {
       });
       carregarUsuarios();
     } catch (error) {
-      alert(error?.response?.data?.erro || "Erro ao desativar usuário");
+      toast.error(error?.response?.data?.erro || "Erro ao desativar usuário");
     }
   }
 
@@ -53,7 +54,7 @@ export default function ListaUsuarios() {
       await api.put(`/usuarios/${id}/reativar`);
       carregarUsuarios();
     } catch (error) {
-      alert(error?.response?.data?.erro || "Erro ao reativar usuário");
+      toast.error(error?.response?.data?.erro || "Erro ao reativar usuário");
     }
   }
 

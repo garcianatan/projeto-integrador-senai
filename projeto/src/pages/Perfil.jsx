@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import api from "../services/api";
 import "./Perfil.css";
 
@@ -24,7 +25,7 @@ export default function Perfil() {
       setTipo(resposta.data.tipo || "");
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao carregar perfil");
+      toast.error(error?.response?.data?.erro || "Erro ao carregar perfil");
     }
   }
 
@@ -52,11 +53,11 @@ export default function Perfil() {
 
       sessionStorage.setItem("usuario", JSON.stringify(usuarioAtualizado));
 
-      alert("Perfil atualizado com sucesso");
+      toast.success("Perfil atualizado com sucesso");
       navigate("/");
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao atualizar perfil");
+      toast.error(error?.response?.data?.erro || "Erro ao atualizar perfil");
     }
   }
 

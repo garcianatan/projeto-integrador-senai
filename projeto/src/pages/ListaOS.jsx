@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./ListaOS.css";
 import { FaSignOutAlt, FaEllipsisH, FaTimesCircle, FaCheck, FaClock } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 export default function ListaOS() {
   const [ordens, setOrdens] = useState([]);
@@ -24,7 +25,7 @@ export default function ListaOS() {
       setOrdens(resposta.data);
     } catch (error) {
       console.error(error);
-      alert("Erro ao carregar ordens de serviço");
+      toast.error("Erro ao carregar ordens de serviço");
     }
   }
 
