@@ -139,6 +139,12 @@ const atualizarPerfil = async (req, res) => {
     const { id } = req.params;
     const { nome, email } = req.body;
 
+    if (Number(id) !== Number(req.usuario.id)) {
+      return res.status(403).json({
+        erro: "Você só pode editar o seu próprio perfil"
+      });
+    }
+
     if (!nome || !email) {
       return res.status(400).json({
         erro: "Nome e email são obrigatórios"
