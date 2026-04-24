@@ -29,12 +29,6 @@ export default function ListaOS() {
     }
   }
 
-  function handleLogout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("usuario");
-    navigate("/login");
-  }
-
   function formatarDataParaInput(dataString) {
     const data = new Date(dataString);
 
@@ -82,11 +76,6 @@ export default function ListaOS() {
                 Gerenciar Usuários
               </button>
             )}
-
-            <button type="button" className="button-diversi" onClick={handleLogout}>
-              <FaSignOutAlt />
-              Sair
-            </button>
           </div>
         </div>
 

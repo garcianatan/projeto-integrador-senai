@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCogs, FaSignOutAlt, FaUser } from "react-icons/fa";
 import "./Header.css";
+import ConfirmModal from "./ConfirmModal";
 
 export default function Header({ usuario, onLogout }) {
   const [menuAberto, setMenuAberto] = useState(false);
+  const [modalSairAberto, setModalSairAberto] = useState(false);
+
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -23,7 +26,22 @@ export default function Header({ usuario, onLogout }) {
 
   const inicial = usuario?.nome ? usuario.nome.charAt(0).toUpperCase() : "U";
 
+  function abrirModalSair() {
+    setMenuAberto(false);
+    setModalSairAberto(true);
+  }
+
+  function fecharModalSair() {
+    setModalSairAberto(false);
+  }
+
+  function confirmarSaida() {
+    setModalSairAberto(false);
+    onLogout();
+  }
+
   return (
+    <>
     <header className="app-header">
       <div className="app-header-logo">
         <span className="app-header-icon">
@@ -64,10 +82,7 @@ export default function Header({ usuario, onLogout }) {
             <button
               type="button"
               className="perfil-dropdown-item"
-              onClick={() => {
-                setMenuAberto(false);
-                onLogout();
-              }}
+              onClick={abrirModalSair}
             >
               <FaSignOutAlt />
               Sair
@@ -76,5 +91,15 @@ export default function Header({ usuario, onLogout }) {
         )}
       </div>
     </header>
+    <ConfirmModal
+        aberto={modalSairAberto}
+        titulo="Sair da conta"
+        mensagem="Deseja realmente encerrar sua sessão no sistema?"
+        textoConfirmar="Sair"
+        textoCancelar="Cancelar"
+        onConfirm={confirmarSaida}
+        onCancel={fecharModalSair}
+      />
+    </>
   );
 }

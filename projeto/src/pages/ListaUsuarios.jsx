@@ -19,11 +19,7 @@ export default function ListaUsuarios() {
     carregarUsuarios();
   }, []);
 
-  function handleLogout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("usuario");
-    navigate("/login");
-  }
+  
 
   async function carregarUsuarios() {
     try {
@@ -92,11 +88,6 @@ export default function ListaUsuarios() {
           <div className="topo-usuarios-acoes">
             <button onClick={() => navigate("/usuarios/novo")}>
               Novo Usuário
-            </button>
-
-            <button onClick={handleLogout} className="button-diversi">
-              <FaSignOutAlt />
-              Sair
             </button>
           </div>
         </div>
