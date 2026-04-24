@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
 import "./DetalheOS.css";
 import { FaFilePdf, FaEdit } from 'react-icons/fa'
+import toast from "react-hot-toast";
 
 export default function DetalheOS() {
   const [os, setOs] = useState(null);
@@ -29,7 +30,7 @@ export default function DetalheOS() {
       window.open(url, "_blank");
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
-      alert("Erro ao gerar PDF");
+      toast.error("Erro ao gerar PDF");
     }
   };
 
@@ -47,23 +48,23 @@ export default function DetalheOS() {
       setMotivoRecusa(resposta.data.motivo_recusa || "");
     } catch (error) {
       console.error(error);
-      alert("Erro ao buscar detalhes da OS");
+      toast.error("Erro ao buscar detalhes da OS");
     }
   }
 
   async function atualizarStatus() {
     if (!status) {
-      alert("Selecione um status");
+      toast.error("Selecione um status");
       return;
     }
 
     if ((status === "aprovada" || status === "recusada") && !coordenadorNome.trim()) {
-      alert("Informe o nome do coordenador");
+      toast.error("Informe o nome do coordenador");
       return;
     }
 
     if (status === "recusada" && !motivoRecusa.trim()) {
-      alert("Informe o motivo da recusa");
+      toast.error("Informe o motivo da recusa");
       return;
     }
 
@@ -74,11 +75,11 @@ export default function DetalheOS() {
         motivo_recusa: status === "recusada" ? motivoRecusa : null
       });
 
-      alert("Status atualizado com sucesso");
+      toast.success("Status atualizado com sucesso");
       carregarOS();
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao atualizar status");
+      toast.error(error?.response?.data?.erro || "Erro ao atualizar status");
     }
   }
 

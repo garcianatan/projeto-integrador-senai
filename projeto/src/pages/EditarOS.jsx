@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
 import "./CadastroOS.css";
+import toast from "react-hot-toast";
 
 export default function EditarOS() {
   const { id } = useParams();
@@ -118,7 +119,7 @@ export default function EditarOS() {
       }
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao carregar OS");
+      toast.error(error?.response?.data?.erro || "Erro ao carregar OS");
     }
   }
 
@@ -157,11 +158,11 @@ export default function EditarOS() {
       };
 
       await api.put(`/ordens/${id}`, dadosAtualizados);
-      alert("OS atualizada com sucesso");
+      toast.success("OS atualizada com sucesso");
       navigate(`/ordens/${id}`);
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao atualizar OS");
+      toast.error(error?.response?.data?.erro || "Erro ao atualizar OS");
     }
   }
 

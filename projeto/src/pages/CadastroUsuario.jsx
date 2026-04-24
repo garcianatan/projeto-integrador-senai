@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./CadastroUsuario.css";
+import toast from "react-hot-toast";
 
 export default function CadastroUsuario() {
   const navigate = useNavigate();
@@ -22,11 +23,11 @@ export default function CadastroUsuario() {
         tipo
       });
 
-      alert(resposta.data.mensagem);
+      toast.success(resposta.data.mensagem);
       navigate("/");
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao cadastrar usuário");
+      toast.error(error?.response?.data?.erro || "Erro ao cadastrar usuário");
     }
   }
 

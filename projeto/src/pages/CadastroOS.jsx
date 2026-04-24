@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./CadastroOS.css";
+import toast from "react-hot-toast";
 
 export default function App() {
   const navigate = useNavigate();
@@ -92,7 +93,7 @@ export default function App() {
     const usuarioLogado = JSON.parse(sessionStorage.getItem("usuario"));
 
     if (!usuarioLogado) {
-      alert("Usuário não encontrado. Faça login novamente.");
+      toast.error("Usuário não encontrado. Faça login novamente.");
       navigate("/login");
       return;
     }
@@ -123,12 +124,12 @@ export default function App() {
 
       const resposta = await api.post("/ordens", novaOS);
 
-      alert(resposta.data.mensagem);
+      toast.success(resposta.data.mensagem);
       limparFormulario();
       navigate("/ordens");
     } catch (error) {
       console.error(error);
-      alert(error?.response?.data?.erro || "Erro ao cadastrar ordem de serviço");
+      toast.error(error?.response?.data?.erro || "Erro ao cadastrar ordem de serviço");
     }
   };
 
