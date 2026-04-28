@@ -171,11 +171,75 @@ const atualizarStatus = async (id, dados) => {
   return resultado;
 };
 
+function montarFiltrosLista({ projeto, status, data }) {
+  const filtros = [];
+  const params = [];
+
+  if (projeto) {
+    filtros.push("os.nome_projeto LIKE ?");
+    params.push(`%${projeto}%`);
+  }
+
+  if (status) {
+    filtros.push("os.status = ?");
+    params.push(status);
+  }
+
+  if (data) {
+    filtros.push("DATE(os.data_lancamento) = ?");
+    params.push(data);
+  }
+
+  const where = filtros.length > 0
+    ? `WHERE ${filtros.join(" AND ")}`
+    : "";
+
+  return { where, params };
+}
+
+const buscarResumoListaPdf = async (filtros) => {
+  const { where, params } = montarFiltrosLista(filtros);
+
+  const sql = `
+    SELECT
+      COUNT(*) AS total,
+      COALESCE(SUM(os.status = 'pendente'), 0) AS pendentes,
+      COALESCE(SUM(os.status = 'aprovada'), 0) AS aprovadas,
+      COALESCE(SUM(os.status = 'recusada'), 0) AS recusadas,
+      COALESCE(SUM(os.status = 'finalizada'), 0) AS finalizadas
+    FROM ordens_servico os
+    ${where}
+  `;
+
+  const [rows] = await db.execute(sql, params);
+  return rows[0];
+};
+
+const buscarItensListaPdf = async (filtros) => {
+  const { where, params } = montarFiltrosLista(filtros);
+
+  const sql = `
+    SELECT
+      os.id,
+      os.nome_projeto,
+      os.status,
+      os.data_lancamento
+    FROM ordens_servico os
+    ${where}
+    ORDER BY os.data_lancamento DESC, os.id DESC
+  `;
+
+  const [rows] = await db.execute(sql, params);
+  return rows;
+};
+
 module.exports = {
   criar,
   listar,
   buscarPorId,
   buscarStatusPorId,
   atualizar,
-  atualizarStatus
+  atualizarStatus,
+  buscarResumoListaPdf,
+  buscarItensListaPdf
 };

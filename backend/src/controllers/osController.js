@@ -329,11 +329,113 @@ const gerarPDFOrdem = async (req, res) => {
   }
 }
 
+const exportarListaPdf = async (req, res) => {
+  try {
+    const { projeto, status, data } = req.query;
+
+    const filtros = {
+      projeto: projeto || "",
+      status: status || "",
+      data: data || ""
+    };
+
+    const resumo = await osModel.buscarResumoListaPdf(filtros);
+    const itens = await osModel.buscarItensListaPdf(filtros);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="lista-os.pdf"'
+    );
+
+    const doc = new PDFDocument({
+      margin: 40,
+      size: "A4"
+    });
+
+    doc.pipe(res);
+
+    doc.fontSize(18).text("Relatorio de Ordens de Servico", {
+      align: "center"
+    });
+
+    doc.moveDown();
+    doc.fontSize(11).text(`Projeto: ${projeto || "Todos"}`);
+    doc.text(`Status: ${status || "Todos"}`);
+    doc.text(`Data: ${data || "Todas"}`);
+    doc.moveDown();
+
+    doc.fontSize(13).text("Resumo");
+    doc.moveDown(0.5);
+    doc.fontSize(11).text(`Total: ${resumo.total || 0}`);
+    doc.text(`Pendentes: ${resumo.pendentes || 0}`);
+    doc.text(`Aprovadas: ${resumo.aprovadas || 0}`);
+    doc.text(`Recusadas: ${resumo.recusadas || 0}`);
+    doc.text(`Finalizadas: ${resumo.finalizadas || 0}`);
+    doc.moveDown();
+
+    doc.fontSize(13).text("Ordens encontradas");
+    doc.moveDown(0.5);
+
+    if (!itens.length) {
+      doc.fontSize(11).text("Nenhuma ordem encontrada.");
+      doc.end();
+      return;
+    }
+
+    const colunas = {
+      id: 40,
+      projeto: 90,
+      status: 340,
+      data: 430
+    };
+
+    function desenharCabecalhoTabela() {
+      const y = doc.y;
+      doc.font("Helvetica-Bold").fontSize(9);
+      doc.text("ID", colunas.id, y);
+      doc.text("Projeto", colunas.projeto, y, { width: 220 });
+      doc.text("Status", colunas.status, y, { width: 80 });
+      doc.text("Data", colunas.data, y, { width: 90 });
+      doc.moveDown();
+      doc.font("Helvetica");
+    }
+
+    desenharCabecalhoTabela();
+
+    itens.forEach((os) => {
+      if (doc.y > 740) {
+        doc.addPage();
+        desenharCabecalhoTabela();
+      }
+
+      const y = doc.y;
+      const dataFormatada = new Date(os.data_lancamento).toLocaleDateString("pt-BR");
+
+      doc.fontSize(8);
+      doc.text(String(os.id), colunas.id, y, { width: 35 });
+      doc.text(os.nome_projeto || "-", colunas.projeto, y, { width: 220 });
+      doc.text(os.status || "-", colunas.status, y, { width: 80 });
+      doc.text(dataFormatada, colunas.data, y, { width: 90 });
+
+      doc.moveDown(1.8);
+    });
+
+    doc.end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      erro: "Erro ao exportar PDF da lista de ordens"
+    });
+  }
+};
+
 module.exports = {
   criarOS,
   listarOS,
   buscarOSPorId,
   atualizarOS,
   atualizarStatusOS,
-  gerarPDFOrdem
+  gerarPDFOrdem,
+  exportarListaPdf
 };

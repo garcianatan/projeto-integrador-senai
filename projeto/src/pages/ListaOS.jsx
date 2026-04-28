@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./ListaOS.css";
@@ -29,6 +29,33 @@ export default function ListaOS() {
     }
   }
 
+  async function exportarPdf() {
+    try {
+      const resposta = await api.get("/ordens/pdf-lista", {
+        params: {
+          projeto: filtroProjeto,
+          status: filtroStatus,
+          data: filtroData
+        },
+        responseType: "blob"
+      });
+
+      const url = window.URL.createObjectURL(new Blob([resposta.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "lista-os.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("PDF exportado com sucesso");
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.erro || "Erro ao exportar PDF");
+    }
+  }
+
   function formatarDataParaInput(dataString) {
     const data = new Date(dataString);
 
@@ -39,19 +66,43 @@ export default function ListaOS() {
     return `${ano}-${mes}-${dia}`;
   }
 
-  const ordensFiltradas = ordens.filter((os) => {
-    const projetoOk = os.nome_projeto
-      .toLowerCase()
-      .includes(filtroProjeto.toLowerCase());
+  const ordensFiltradas = useMemo(() => {
+    return ordens.filter((os) => {
+      const projetoOk = os.nome_projeto
+        .toLowerCase()
+        .includes(filtroProjeto.toLowerCase());
 
-    const statusOk = filtroStatus ? os.status === filtroStatus : true;
+      const statusOk = filtroStatus ? os.status === filtroStatus : true;
 
-    const dataOk = filtroData
-      ? formatarDataParaInput(os.data_lancamento) === filtroData
-      : true;
+      const dataOk = filtroData
+        ? formatarDataParaInput(os.data_lancamento) === filtroData
+        : true;
 
-    return projetoOk && statusOk && dataOk;
-  });
+      return projetoOk && statusOk && dataOk;
+    });
+  }, [ordens, filtroProjeto, filtroStatus, filtroData]);
+
+  const resumo = useMemo(() => {
+    return ordensFiltradas.reduce(
+      (acc, os) => {
+        acc.total += 1;
+
+        if (os.status === "pendente") acc.pendentes += 1;
+        if (os.status === "aprovada") acc.aprovadas += 1;
+        if (os.status === "recusada") acc.recusadas += 1;
+        if (os.status === "finalizada") acc.finalizadas += 1;
+
+        return acc;
+      },
+      {
+        total: 0,
+        pendentes: 0,
+        aprovadas: 0,
+        recusadas: 0,
+        finalizadas: 0
+      }
+    );
+  }, [ordensFiltradas]);
 
   return (
     <div className="container-lista">
@@ -66,15 +117,15 @@ export default function ListaOS() {
 
           <div className="topo-acoes">
             {usuarioLogado?.tipo !== "admin" && (
-              <button type="button" onClick={() => navigate("/ordens/nova")}>
-                Nova OS
-              </button>
-            )}
+              <>
+                <button type="button" onClick={() => navigate("/ordens/nova")}>
+                  Nova OS
+                </button>
 
-            {usuarioLogado?.tipo === "admin" && (
-              <button type="button" onClick={() => navigate("/usuarios")}>
-                Gerenciar Usuários
-              </button>
+                <button type="button" onClick={exportarPdf}>
+                  Exportar PDF
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -114,6 +165,32 @@ export default function ListaOS() {
           </div>
         </div>
 
+        <div className="cards-resumo">
+          <div className="card-resumo">
+            <span className="card-titulo">Total</span>
+            <strong className="card-valor">{resumo.total}</strong>
+          </div>
+
+          <div className="card-resumo card-pendente">
+            <span className="card-titulo">Pendentes</span>
+            <strong className="card-valor">{resumo.pendentes}</strong>
+          </div>
+
+          <div className="card-resumo card-aprovada">
+            <span className="card-titulo">Aprovadas</span>
+            <strong className="card-valor">{resumo.aprovadas}</strong>
+          </div>
+
+          <div className="card-resumo card-recusada">
+            <span className="card-titulo">Recusadas</span>
+            <strong className="card-valor">{resumo.recusadas}</strong>
+          </div>
+
+          <div className="card-resumo card-finalizada">
+            <span className="card-titulo">Finalizadas</span>
+            <strong className="card-valor">{resumo.finalizadas}</strong>
+          </div>
+        </div>
         <div className="tabela-wrapper">
           <table className="tabela">
             <thead>

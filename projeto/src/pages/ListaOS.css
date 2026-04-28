@@ -61,6 +61,12 @@ td button:hover {
   box-shadow: 0 10px 20px rgba(58, 58, 255, 0.4);
 }
 
+.topo-acoes {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .filtros {
   display: flex;
   gap: 16px;
@@ -100,6 +106,53 @@ td button:hover {
   box-shadow: 0 6px 16px rgba(58, 58, 255, 0.25);
   transform: translateY(-2px);
 }
+
+.cards-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.card-resumo {
+  background: #fff;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3b4a5a;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.card-valor {
+  font-size: 28px;
+  color: #1a1a5e;
+}
+
+.card-pendente {
+  background: linear-gradient(135deg, #fff4d6, #ffe7ad);
+}
+
+.card-aprovada {
+  background: linear-gradient(135deg, #ddf8e7, #c6efd7);
+}
+
+.card-recusada {
+  background: linear-gradient(135deg, #ffdcdc, #ffc6c6);
+}
+
+.card-finalizada {
+  background: linear-gradient(135deg, #dfe3ff, #cdd5ff);
+}
+
 
 .tabela-wrapper {
   overflow-x: auto;
@@ -142,8 +195,15 @@ tbody tr:hover {
   background-color: #f5f7ff;
 }
 
+.coluna-projeto {
+  font-weight: bold;
+}
+
+
 .status-os {
   display: inline-block;
+  align-items: center;
+  justify-content: center;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
@@ -152,7 +212,7 @@ tbody tr:hover {
   color: #fff;
   line-height: 1;
   display: flex !important;
-  gap: 10px;
+  gap: 8px;
   width: min-content;
 }
 
@@ -166,12 +226,13 @@ tbody tr:hover {
 .piu {
   background: none !important;
   color: #110366 !important;
-  box-shadow: none;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 .piu:hover {
   box-shadow: none !important;
-  transform: translateY(0px);
+  transform: translateY(0px) !important;
   font-size: 17px;
 }
 
@@ -191,18 +252,27 @@ tbody tr:hover {
   background-color: #3a3aff;
 }
 
-.tabela th:nth-child(1), td:nth-child(1) {
-  width: 0px !important;
+.tabela th:nth-child(1),
+.tabela td:nth-child(1) {
+  width: 70px !important;
 }
 
-.tabela th:nth-child(3), td:nth-child(3) {
-  width: 50px !important;
+.tabela th:nth-child(2),
+.tabela td:nth-child(2) {
+  width: 250px !important;
 }
 
-.tabela th:nth-child(4), td:nth-child(4) {
-  width: 50px !important;
+.tabela th:nth-child(3),
+.tabela td:nth-child(3) {
+  width: 130px !important;
 }
 
-.tabela th:nth-child(5), td:nth-child(5) {
-  width: 40px !important;
+.tabela th:nth-child(4),
+.tabela td:nth-child(4) {
+  width: 120px !important;
+}
+
+.tabela th:nth-child(5),
+.tabela td:nth-child(5) {
+  width: 90px !important;
 }
