@@ -79,11 +79,11 @@ export default function ListaOS() {
       const dataOS = formatarDataParaInput(os.data_lancamento);
 
       const dataInicioOk = filtroDataInicio
-        ? dataOS >=  filtroDataInicio
+        ? dataOS >= filtroDataInicio
         : true;
 
       const dataFimOk = filtroDataFim
-        ? dataOS <=  filtroDataFim
+        ? dataOS <= filtroDataFim
         : true;
 
       return projetoOk && statusOk && dataInicioOk && dataFimOk;
@@ -124,17 +124,13 @@ export default function ListaOS() {
           </div>
 
           <div className="topo-acoes">
-            {usuarioLogado?.tipo !== "admin" && (
-              <>
-                <button type="button" onClick={() => navigate("/ordens/nova")}>
-                  Nova OS
-                </button>
+            <button type="button" onClick={() => navigate("/ordens/nova")}>
+              Nova OS
+            </button>
 
-                <button type="button" onClick={exportarPdf}>
-                  Exportar PDF
-                </button>
-              </>
-            )}
+            <button type="button" onClick={exportarPdf}>
+              Exportar PDF
+            </button>
           </div>
         </div>
 
@@ -224,19 +220,13 @@ export default function ListaOS() {
                 ordensFiltradas.map((os) => (
                   <tr key={os.id}>
                     <td>{os.id}</td>
-                    <td style={{ fontWeight: 'bold' }}>{os.nome_projeto}</td>
+                    <td className="coluna-projeto">{os.nome_projeto}</td>
                     <td>
                       <span className={`status-os status-${os.status}`}>
                         {os.status}
-                        {os.status === 'recusada' && (
-                          <FaTimesCircle />
-                        )}
-                        {os.status === 'aprovada' && (
-                          <FaCheck />
-                        )}
-                        {os.status === 'pendente' && (
-                          <FaClock />
-                        )}
+                        {os.status === "recusada" && <FaTimesCircle />}
+                        {os.status === "aprovada" && <FaCheck />}
+                        {os.status === "pendente" && <FaClock />}
                       </span>
                     </td>
                     <td>

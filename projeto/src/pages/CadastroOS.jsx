@@ -226,6 +226,7 @@ export default function App() {
           type="text"
           value={medidaFinal}
           onChange={(e) => setMedidaFinal(e.target.value)}
+          required
         />
 
         <label>
