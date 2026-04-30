@@ -12,22 +12,98 @@ export default function ListaOS() {
   const [filtroDataInicio, setFiltroDataInicio] = useState("");
   const [filtroDataFim, setFiltroDataFim] = useState("");
 
+  const [resumo, setResumo] = useState({
+    total: 0,
+    pendentes: 0,
+    aprovadas: 0,
+    recusadas: 0,
+    finalizadas: 0
+  });
+
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const [totalItens, setTotalItens] = useState(0);
+  const [carregando, setCarregando] = useState(false);
+
   const navigate = useNavigate();
 
   const usuarioLogado = JSON.parse(sessionStorage.getItem("usuario"));
 
   useEffect(() => {
-    carregarOrdens();
+    carregarOrdens({
+    page: 1,
+    projeto: "",
+    status: "",
+    dataInicio: "",
+    dataFim: ""
+  });
   }, []);
 
-  async function carregarOrdens() {
+  async function carregarOrdens({
+    page = paginaAtual,
+    projeto = filtroProjeto,
+    status = filtroStatus,
+    dataInicio = filtroDataInicio,
+    dataFim = filtroDataFim
+  } = {}) {
     try {
-      const resposta = await api.get("/ordens");
-      setOrdens(resposta.data);
+      setCarregando(true);
+
+      const resposta = await api.get("/ordens", {
+        params: {
+          projeto,
+          status,
+          dataInicio,
+          dataFim,
+          page,
+          limit: 10
+        }
+      });
+
+      setOrdens(resposta.data.itens || []);
+      setResumo(
+        resposta.data.resumo || {
+          total: 0,
+          pendentes: 0,
+          aprovadas: 0,
+          recusadas: 0,
+          finalizadas: 0
+        }
+      );
+      setPaginaAtual(resposta.data.paginacao?.page || 1);
+      setTotalPaginas(resposta.data.paginacao?.totalPages || 1);
+      setTotalItens(resposta.data.paginacao?.total || 0);
     } catch (error) {
       console.error(error);
       toast.error("Erro ao carregar ordens de serviço");
+    } finally {
+      setCarregando(false);
     }
+  }
+
+  function aplicarFiltros() {
+  carregarOrdens({
+    page: 1,
+    projeto: filtroProjeto,
+    status: filtroStatus,
+    dataInicio: filtroDataInicio,
+    dataFim: filtroDataFim
+  });
+}
+
+  function limparFiltros() {
+    setFiltroProjeto("");
+    setFiltroStatus("");
+    setFiltroDataInicio("");
+    setFiltroDataFim("");
+
+    carregarOrdens({
+      page: 1,
+      projeto: "",
+      status: "",
+      dataInicio: "",
+      dataFim: ""
+    });
   }
 
   async function exportarPdf() {
@@ -58,59 +134,83 @@ export default function ListaOS() {
     }
   }
 
-  function formatarDataParaInput(dataString) {
-    const data = new Date(dataString);
-
-    const ano = data.getFullYear();
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const dia = String(data.getDate()).padStart(2, "0");
-
-    return `${ano}-${mes}-${dia}`;
+  function irParaPaginaAnterior() {
+    if (paginaAtual > 1) {
+      carregarOrdens({
+      page: paginaAtual - 1,
+      projeto: filtroProjeto,
+      status: filtroStatus,
+      dataInicio: filtroDataInicio,
+      dataFim: filtroDataFim
+    });
+    }
   }
 
-  const ordensFiltradas = useMemo(() => {
-    return ordens.filter((os) => {
-      const projetoOk = os.nome_projeto
-        .toLowerCase()
-        .includes(filtroProjeto.toLowerCase());
-
-      const statusOk = filtroStatus ? os.status === filtroStatus : true;
-
-      const dataOS = formatarDataParaInput(os.data_lancamento);
-
-      const dataInicioOk = filtroDataInicio
-        ? dataOS >= filtroDataInicio
-        : true;
-
-      const dataFimOk = filtroDataFim
-        ? dataOS <= filtroDataFim
-        : true;
-
-      return projetoOk && statusOk && dataInicioOk && dataFimOk;
+  function irParaProximaPagina() {
+    if (paginaAtual < totalPaginas) {
+      carregarOrdens({
+      page: paginaAtual + 1,
+      projeto: filtroProjeto,
+      status: filtroStatus,
+      dataInicio: filtroDataInicio,
+      dataFim: filtroDataFim
     });
-  }, [ordens, filtroProjeto, filtroStatus, filtroDataInicio, filtroDataFim]);
+    }
+  }
 
-  const resumo = useMemo(() => {
-    return ordensFiltradas.reduce(
-      (acc, os) => {
-        acc.total += 1;
+  // function formatarDataParaInput(dataString) {
+  //   const data = new Date(dataString);
 
-        if (os.status === "pendente") acc.pendentes += 1;
-        if (os.status === "aprovada") acc.aprovadas += 1;
-        if (os.status === "recusada") acc.recusadas += 1;
-        if (os.status === "finalizada") acc.finalizadas += 1;
+  //   const ano = data.getFullYear();
+  //   const mes = String(data.getMonth() + 1).padStart(2, "0");
+  //   const dia = String(data.getDate()).padStart(2, "0");
 
-        return acc;
-      },
-      {
-        total: 0,
-        pendentes: 0,
-        aprovadas: 0,
-        recusadas: 0,
-        finalizadas: 0
-      }
-    );
-  }, [ordensFiltradas]);
+  //   return `${ano}-${mes}-${dia}`;
+  // }
+
+  // const ordensFiltradas = useMemo(() => {
+  //   return ordens.filter((os) => {
+  //     const projetoOk = os.nome_projeto
+  //       .toLowerCase()
+  //       .includes(filtroProjeto.toLowerCase());
+
+  //     const statusOk = filtroStatus ? os.status === filtroStatus : true;
+
+  //     const dataOS = formatarDataParaInput(os.data_lancamento);
+
+  //     const dataInicioOk = filtroDataInicio
+  //       ? dataOS >= filtroDataInicio
+  //       : true;
+
+  //     const dataFimOk = filtroDataFim
+  //       ? dataOS <= filtroDataFim
+  //       : true;
+
+  //     return projetoOk && statusOk && dataInicioOk && dataFimOk;
+  //   });
+  // }, [ordens, filtroProjeto, filtroStatus, filtroDataInicio, filtroDataFim]);
+
+  // const resumo = useMemo(() => {
+  //   return ordensFiltradas.reduce(
+  //     (acc, os) => {
+  //       acc.total += 1;
+
+  //       if (os.status === "pendente") acc.pendentes += 1;
+  //       if (os.status === "aprovada") acc.aprovadas += 1;
+  //       if (os.status === "recusada") acc.recusadas += 1;
+  //       if (os.status === "finalizada") acc.finalizadas += 1;
+
+  //       return acc;
+  //     },
+  //     {
+  //       total: 0,
+  //       pendentes: 0,
+  //       aprovadas: 0,
+  //       recusadas: 0,
+  //       finalizadas: 0
+  //     }
+  //   );
+  // }, [ordensFiltradas]);
 
   return (
     <div className="container-lista">
@@ -178,6 +278,20 @@ export default function ListaOS() {
           </div>
         </div>
 
+        <div className="acoes-filtro-lista">
+          <button type="button" onClick={aplicarFiltros}>
+            Filtrar
+          </button>
+
+          <button
+            type="button"
+            className="button-secundario"
+            onClick={limparFiltros}
+          >
+            Limpar
+          </button>
+        </div>
+
         <div className="cards-resumo">
           <div className="card-resumo">
             <span className="card-titulo">Total</span>
@@ -204,6 +318,12 @@ export default function ListaOS() {
             <strong className="card-valor">{resumo.finalizadas}</strong>
           </div>
         </div>
+
+        <div className="info-paginacao">
+          <span>Total de registros: {totalItens}</span>
+          {carregando && <span>Carregando...</span>}
+        </div>
+
         <div className="tabela-wrapper">
           <table className="tabela">
             <thead>
@@ -216,8 +336,8 @@ export default function ListaOS() {
               </tr>
             </thead>
             <tbody>
-              {ordensFiltradas.length > 0 ? (
-                ordensFiltradas.map((os) => (
+              {ordens.length > 0 ? (
+                ordens.map((os) => (
                   <tr key={os.id}>
                     <td>{os.id}</td>
                     <td className="coluna-projeto">{os.nome_projeto}</td>
@@ -250,6 +370,27 @@ export default function ListaOS() {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="paginacao">
+          <button
+            type="button"
+            onClick={irParaPaginaAnterior}
+            disabled={paginaAtual === 1}
+          >
+            ←
+          </button>
+
+          <span>
+            Página {paginaAtual} de {totalPaginas}
+          </span>
+
+          <button
+            type="button"
+            onClick={irParaProximaPagina}
+            disabled={paginaAtual === totalPaginas}
+          >
+            →
+          </button>
         </div>
       </div>
     </div>

@@ -97,11 +97,53 @@ const criarOS = async (req, res) => {
 
 const listarOS = async (req, res) => {
   try {
-    const ordens = await osModel.listar();
-    res.json(ordens);
+    const {
+      projeto = "",
+      status = "",
+      dataInicio = "",
+      dataFim = "",
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    const filtros = {
+      projeto,
+      status,
+      dataInicio,
+      dataFim
+    };
+
+    const limite = Number(limit) || 10;
+
+    const total = await osModel.contarPaginado(filtros);
+
+    const totalPages = Math.max(1, Math.ceil(total / limite));
+    const paginaSolicitada = Number(page) || 1;
+    const pagina = Math.min(Math.max(paginaSolicitada, 1), totalPages);
+
+    const itens = await osModel.listarPaginado({
+      ...filtros,
+      page: pagina,
+      limit: limite
+    });
+
+    const resumo = await osModel.buscarResumoLista(filtros);
+
+    res.json({
+      itens,
+      resumo,
+      paginacao: {
+        page: pagina,
+        limit: limite,
+        total,
+        totalPages
+      }
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ erro: "Erro ao listar ordens de serviço" });
+    res.status(500).json({
+      erro: "Erro ao listar ordens de serviço"
+    });
   }
 };
 
@@ -331,13 +373,18 @@ const gerarPDFOrdem = async (req, res) => {
 
 const exportarListaPdf = async (req, res) => {
   try {
-    const { projeto, status, dataInicio, dataFim  } = req.query;
+    const {
+      projeto = "",
+      status = "",
+      dataInicio = "",
+      dataFim = ""
+    } = req.query;
 
     const filtros = {
-      projeto: projeto || "",
-      status: status || "",
-      dataInicio: dataInicio || "",
-      dataFim: dataFim || ""
+      projeto,
+      status,
+      dataInicio,
+      dataFim
     };
 
     const resumo = await osModel.buscarResumoListaPdf(filtros);

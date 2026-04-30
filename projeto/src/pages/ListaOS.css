@@ -275,3 +275,101 @@ tbody tr:hover {
 .tabela td:nth-child(5) {
   width: 90px !important;
 }
+
+.acoes-filtro-lista {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  margin-top: -8px;
+  justify-content: right;
+}
+
+.acoes-filtro-lista button {
+  width: auto;
+  padding: 10px 16px;
+  background: linear-gradient(270deg, #3e3eb9, #3a3aff);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+  box-shadow: 0 6px 15px rgba(58, 58, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.acoes-filtro-lista button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(58, 58, 255, 0.4);
+}
+
+.button-secundario {
+  background: linear-gradient(270deg, #6b7280, #4b5563) !important;
+  box-shadow: 0 6px 15px rgba(75, 85, 99, 0.25) !important;
+}
+
+.info-paginacao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #4b5563;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.paginacao {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.paginacao button {
+  /* width: auto;
+  background: linear-gradient(270deg, #3e3eb9, #3a3aff);
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 10px; */
+
+
+  padding: 5px 16px;
+  background: linear-gradient(270deg, #3e3eb9, #3a3aff);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+  box-shadow: 0 6px 15px rgba(58, 58, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.paginacao button:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(58, 58, 255, 0.4);
+}
+
+.paginacao span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a5e;
+}
+
+.paginacao button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  filter: grayscale(0.2);
+}
+
+.paginacao button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}

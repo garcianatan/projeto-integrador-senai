@@ -202,8 +202,76 @@ function montarFiltrosLista({ projeto, status, dataInicio, dataFim }) {
   return { where, params };
 }
 
-const buscarResumoListaPdf = async (filtros) => {
-  const { where, params } = montarFiltrosLista(filtros);
+const listarPaginado = async ({
+  projeto,
+  status,
+  dataInicio,
+  dataFim,
+  page = 1,
+  limit = 10
+}) => {
+  const { where, params } = montarFiltrosLista({
+    projeto,
+    status,
+    dataInicio,
+    dataFim
+  });
+
+  const pagina = Number(page) || 1;
+  const limite = Number(limit) || 10;
+  const offset = (page - 1) * limit;
+
+  const sql = `
+    SELECT
+      os.id,
+      os.nome_projeto,
+      os.status,
+      os.data_lancamento
+    FROM ordens_servico os
+    ${where}
+    ORDER BY os.data_lancamento DESC, os.id DESC
+    LIMIT ${limite} OFFSET ${offset}
+  `;
+
+  const [rows] = await db.execute(sql, params);
+  return rows;
+};
+
+const contarPaginado = async ({
+  projeto,
+  status,
+  dataInicio,
+  dataFim
+}) => {
+  const { where, params } = montarFiltrosLista({
+    projeto,
+    status,
+    dataInicio,
+    dataFim
+  });
+
+  const sql = `
+    SELECT COUNT(*) AS total
+    FROM ordens_servico os
+    ${where}
+  `;
+
+  const [rows] = await db.execute(sql, params);
+  return rows[0].total;
+};
+
+const buscarResumoLista = async ({
+  projeto,
+  status,
+  dataInicio,
+  dataFim
+}) => {
+  const { where, params } = montarFiltrosLista({
+    projeto,
+    status,
+    dataInicio,
+    dataFim
+  });
 
   const sql = `
     SELECT
@@ -220,8 +288,46 @@ const buscarResumoListaPdf = async (filtros) => {
   return rows[0];
 };
 
-const buscarItensListaPdf = async (filtros) => {
-  const { where, params } = montarFiltrosLista(filtros);
+const buscarResumoListaPdf = async ({
+  projeto,
+  status,
+  dataInicio,
+  dataFim
+}) => {
+  const { where, params } = montarFiltrosLista({
+    projeto,
+    status,
+    dataInicio,
+    dataFim
+  });
+
+  const sql = `
+    SELECT
+      COUNT(*) AS total,
+      COALESCE(SUM(os.status = 'pendente'), 0) AS pendentes,
+      COALESCE(SUM(os.status = 'aprovada'), 0) AS aprovadas,
+      COALESCE(SUM(os.status = 'recusada'), 0) AS recusadas,
+      COALESCE(SUM(os.status = 'finalizada'), 0) AS finalizadas
+    FROM ordens_servico os
+    ${where}
+  `;
+
+  const [rows] = await db.execute(sql, params);
+  return rows[0];
+};
+
+const buscarItensListaPdf = async ({
+  projeto,
+  status,
+  dataInicio,
+  dataFim
+}) => {
+  const { where, params } = montarFiltrosLista({
+    projeto,
+    status,
+    dataInicio,
+    dataFim
+  });
 
   const sql = `
     SELECT
@@ -245,6 +351,9 @@ module.exports = {
   buscarStatusPorId,
   atualizar,
   atualizarStatus,
+  listarPaginado,
+  contarPaginado,
+  buscarResumoLista,
   buscarResumoListaPdf,
   buscarItensListaPdf
 };
