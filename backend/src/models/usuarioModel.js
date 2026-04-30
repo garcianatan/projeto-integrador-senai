@@ -99,6 +99,32 @@ const atualizarSenhaPorId = async (id, senha) => {
   return resultado;
 };
 
+const listarPaginado = async ({ page = 1, limit = 10 }) => {
+  const pagina = Number(page) || 1;
+  const limite = Number(limit) || 10;
+  const offset = (pagina - 1) * limite;
+
+  const sql = `
+    SELECT id, nome, email, tipo, ativo, created_at
+    FROM usuarios
+    ORDER BY id DESC
+    LIMIT ${limite} OFFSET ${offset}
+  `;
+
+  const [rows] = await db.execute(sql);
+  return rows;
+};
+
+const contarPaginado = async () => {
+  const sql = `
+    SELECT COUNT(*) AS total
+    FROM usuarios
+  `;
+
+  const [rows] = await db.execute(sql);
+  return rows[0].total;
+};
+
 module.exports = {
   buscarPorEmail,
   buscarPorEmailExcetoId,
@@ -108,5 +134,7 @@ module.exports = {
   atualizar,
   desativar,
   reativar,
-  atualizarSenhaPorId
+  atualizarSenhaPorId,
+  listarPaginado,
+  contarPaginado
 };

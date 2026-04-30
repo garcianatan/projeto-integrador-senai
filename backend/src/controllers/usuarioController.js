@@ -3,8 +3,29 @@ const usuarioModel = require("../models/usuarioModel");
 
 const listarUsuarios = async (req, res) => {
   try {
-    const usuarios = await usuarioModel.listar();
-    res.json(usuarios);
+    const { page = 1, limit = 10 } = req.query;
+
+    const pagina = Number(page) || 1;
+    const limite = Number(limit) || 10;
+
+    const total = await usuarioModel.contarPaginado();
+    const totalPages = Math.max(1, Math.ceil(total / limite));
+    const paginaFinal = Math.min(Math.max(pagina, 1), totalPages);
+
+    const usuarios = await usuarioModel.listarPaginado({
+      page: paginaFinal,
+      limit: limite
+    });
+
+    res.json({
+      itens: usuarios,
+      paginacao: {
+        page: paginaFinal,
+        limit: limite,
+        total,
+        totalPages
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ erro: "Erro ao listar usuários" });
