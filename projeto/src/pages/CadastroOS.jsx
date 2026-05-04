@@ -98,6 +98,36 @@ export default function App() {
       return;
     }
 
+    if (outroProcesso && !textoOutroProcesso.trim()) {
+      toast.error("Informe o outro processo");
+      return;
+    }
+
+    if (outroMaterial && !textoOutroMaterial.trim()) {
+      toast.error("Informe o outro material");
+      return;
+    }
+
+    const processosFinal =
+      outroProcesso && textoOutroProcesso.trim()
+        ? [...processos, `Outro: ${textoOutroProcesso.trim()}`]
+        : processos;
+
+    const materiaisFinal =
+      outroMaterial && textoOutroMaterial.trim()
+        ? [...materiais, `Outro: ${textoOutroMaterial.trim()}`]
+        : materiais;
+
+    if (processosFinal.length === 0) {
+      toast.error("Selecione ao menos um processo");
+      return;
+    }
+
+    if (materiaisFinal.length === 0) {
+      toast.error("Selecione ao menos um material");
+      return;
+    }
+
     try {
       const novaOS = {
         tipo_solicitante: tipoSolicitante,
@@ -110,14 +140,8 @@ export default function App() {
         medida_final: medidaFinal,
         quantidade: Number(quantidade),
         manipulacao_arquivo: manipulacaoArquivo === "1",
-        processos:
-          outroProcesso && textoOutroProcesso.trim()
-            ? [...processos, `Outro: ${textoOutroProcesso}`].join(", ")
-            : processos.join(", "),
-        materiais:
-          outroMaterial && textoOutroMaterial.trim()
-            ? [...materiais, `Outro: ${textoOutroMaterial}`].join(", ")
-            : materiais.join(", "),
+        processos: processosFinal.join(", "),
+        materiais: materiaisFinal.join(", "),
         observacoes
       };
 
