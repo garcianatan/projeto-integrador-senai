@@ -34,7 +34,7 @@ export default function ListaUsuarios() {
       const resposta = await api.get("/usuarios", {
         params: {
           page,
-          limit: 10
+          limit: 10//limite de exibição de usuários por página
         }
       });
 

@@ -57,7 +57,7 @@ export default function ListaOS() {
           dataInicio,
           dataFim,
           page,
-          limit: 10
+          limit: 10 //limite de exibição de OS por página
         }
       });
 
