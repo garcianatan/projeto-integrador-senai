@@ -46,8 +46,7 @@ export default function EditarUsuario() {
       await api.put(`/usuarios/${id}`, {
         nome,
         email,
-        tipo,
-        usuarioLogadoId: usuarioLogado.id
+        tipo
       });
 
       if (novaSenha.trim()) {

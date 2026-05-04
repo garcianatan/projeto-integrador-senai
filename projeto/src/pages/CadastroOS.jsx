@@ -118,8 +118,7 @@ export default function App() {
           outroMaterial && textoOutroMaterial.trim()
             ? [...materiais, `Outro: ${textoOutroMaterial}`].join(", ")
             : materiais.join(", "),
-        observacoes,
-        usuario_id: usuarioLogado.id
+        observacoes
       };
 
       const resposta = await api.post("/ordens", novaOS);

@@ -65,9 +65,7 @@ export default function ListaUsuarios() {
     if (!usuarioSelecionado) return;
 
     try {
-      await api.put(`/usuarios/${usuarioSelecionado}/desativar`, {
-        usuarioLogadoId: usuarioLogado.id
-      });
+      await api.put(`/usuarios/${usuarioSelecionado}/desativar`);
 
       toast.success("Usuário desativado com sucesso");
       setModalAberto(false);
@@ -129,7 +127,7 @@ export default function ListaUsuarios() {
           </div>
 
           <div className="topo-usuarios-acoes">
-            <button onClick={() => navigate("/usuarios/novo")}>
+            <button type="button" onClick={() => navigate("/usuarios/novo")}>
               Novo Usuário
             </button>
           </div>

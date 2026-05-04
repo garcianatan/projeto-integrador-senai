@@ -56,16 +56,6 @@ const criar = async (dados) => {
   return resultado;
 };
 
-const listar = async () => {
-  const [rows] = await db.execute(`
-    SELECT id, nome_projeto, status, data_lancamento
-    FROM ordens_servico
-    ORDER BY id DESC
-  `);
-
-  return rows;
-};
-
 const buscarPorId = async (id) => {
   const [rows] = await db.execute(
     `
@@ -219,7 +209,7 @@ const listarPaginado = async ({
 
   const pagina = Number(page) || 1;
   const limite = Number(limit) || 10;
-  const offset = (page - 1) * limit;
+  const offset = (pagina - 1) * limite;
 
   const sql = `
     SELECT
@@ -346,7 +336,6 @@ const buscarItensListaPdf = async ({
 
 module.exports = {
   criar,
-  listar,
   buscarPorId,
   buscarStatusPorId,
   atualizar,

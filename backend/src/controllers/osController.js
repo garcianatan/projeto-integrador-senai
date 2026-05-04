@@ -5,6 +5,9 @@ const criarOS = async (req, res) => {
   //Lucas: Requerimento obrigatório dos dados do formulário
 
   try {
+
+    const usuario_id = req.usuario.id;
+    
     const {
       tipo_solicitante,
       setor_interno,
@@ -17,8 +20,7 @@ const criarOS = async (req, res) => {
       manipulacao_arquivo,
       processos,
       materiais,
-      observacoes,
-      usuario_id
+      observacoes
     } = req.body;
 
     if (!tipo_solicitante) {
