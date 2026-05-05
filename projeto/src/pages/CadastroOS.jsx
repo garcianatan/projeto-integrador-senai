@@ -4,7 +4,7 @@ import api from "../services/api";
 import "./CadastroOS.css";
 import toast from "react-hot-toast";
 
-export default function App() {
+export default function CadastroOS() {
   const navigate = useNavigate();
 
   const [tipoSolicitante, setTipoSolicitante] = useState("");
@@ -133,16 +133,16 @@ export default function App() {
         tipo_solicitante: tipoSolicitante,
         setor_interno: tipoSolicitante === "interno" ? setorInterno : null,
         solicitante_externo:
-          tipoSolicitante === "externo" ? solicitanteExterno : null,
-        contato,
-        nome_projeto: nomeProjeto,
-        descricao_projeto: descricaoProjeto,
-        medida_final: medidaFinal,
+          tipoSolicitante === "externo" ? solicitanteExterno.trim() : null,
+        contato: contato.trim() ? contato.trim() : null,
+        nome_projeto: nomeProjeto.trim(),
+        descricao_projeto: descricaoProjeto.trim(),
+        medida_final: medidaFinal.trim(),
         quantidade: Number(quantidade),
         manipulacao_arquivo: manipulacaoArquivo === "1",
         processos: processosFinal.join(", "),
         materiais: materiaisFinal.join(", "),
-        observacoes
+        observacoes: observacoes.trim() ? observacoes.trim() : null
       };
 
       const resposta = await api.post("/ordens", novaOS);
@@ -152,7 +152,9 @@ export default function App() {
       navigate("/ordens");
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data?.erro || "Erro ao cadastrar ordem de serviço");
+      toast.error(
+        error?.response?.data?.erro || "Erro ao cadastrar ordem de serviço"
+      );
     }
   };
 

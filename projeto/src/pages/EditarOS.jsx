@@ -30,7 +30,6 @@ export default function EditarOS() {
   const [textoOutroMaterial, setTextoOutroMaterial] = useState("");
 
   const [observacoes, setObservacoes] = useState("");
-  const [statusAtual, setStatusAtual] = useState("");
 
   const listaProcessos = [
     "Fechamento de arquivo",
@@ -64,14 +63,51 @@ export default function EditarOS() {
 
   useEffect(() => {
     carregarOS();
-  }, [id]);
+  }, []);
+
+  function handleCheckboxChange(valor, lista, setLista) {
+    if (lista.includes(valor)) {
+      setLista(lista.filter((item) => item !== valor));
+    } else {
+      setLista([...lista, valor]);
+    }
+  }
+
+  function separarListaComOutro(texto = "", listaBase = []) {
+    const itens = texto
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    const itensBase = [];
+    let outroTexto = "";
+
+    itens.forEach((item) => {
+      if (item.toLowerCase().startsWith("outro:")) {
+        outroTexto = item.substring(6).trim();
+      } else if (listaBase.includes(item)) {
+        itensBase.push(item);
+      }
+    });
+
+    return {
+      itensBase,
+      outroMarcado: !!outroTexto,
+      outroTexto
+    };
+  }
 
   async function carregarOS() {
     try {
       const resposta = await api.get(`/ordens/${id}`);
       const os = resposta.data;
 
-      setStatusAtual(os.status);
+      if (os.status !== "pendente") {
+        toast.error("Somente OS pendentes podem ser editadas");
+        navigate(`/ordens/${id}`);
+        return;
+      }
+
       setTipoSolicitante(os.tipo_solicitante || "");
       setSetorInterno(os.setor_interno || "");
       setSolicitanteExterno(os.solicitante_externo || "");
@@ -83,78 +119,76 @@ export default function EditarOS() {
       setManipulacaoArquivo(os.manipulacao_arquivo ? "1" : "0");
       setObservacoes(os.observacoes || "");
 
-      const processosArray = os.processos
-        ? os.processos.split(", ").filter((item) => !item.startsWith("Outro:"))
-        : [];
+      const processosSeparados = separarListaComOutro(
+        os.processos || "",
+        listaProcessos
+      );
 
-      const materiaisArray = os.materiais
-        ? os.materiais.split(", ").filter((item) => !item.startsWith("Outro:"))
-        : [];
+      setProcessos(processosSeparados.itensBase);
+      setOutroProcesso(processosSeparados.outroMarcado);
+      setTextoOutroProcesso(processosSeparados.outroTexto);
 
-      setProcessos(processosArray);
-      setMateriais(materiaisArray);
-
-      const outroProc = os.processos
-        ? os.processos.split(", ").find((item) => item.startsWith("Outro:"))
-        : null;
-
-      const outroMat = os.materiais
-        ? os.materiais.split(", ").find((item) => item.startsWith("Outro:"))
-        : null;
-
-      if (outroProc) {
-        setOutroProcesso(true);
-        setTextoOutroProcesso(outroProc.replace("Outro: ", ""));
-      } else {
-        setOutroProcesso(false);
-        setTextoOutroProcesso("");
-      }
-
-      if (outroMat) {
-        setOutroMaterial(true);
-        setTextoOutroMaterial(outroMat.replace("Outro: ", ""));
-      } else {
-        setOutroMaterial(false);
-        setTextoOutroMaterial("");
-      }
+      const materiaisSeparados = separarListaComOutro(
+        os.materiais || "",
+        listaMateriais
+      );
+      setMateriais(materiaisSeparados.itensBase);
+      setOutroMaterial(materiaisSeparados.outroMarcado);
+      setTextoOutroMaterial(materiaisSeparados.outroTexto);
     } catch (error) {
       console.error(error);
       toast.error(error?.response?.data?.erro || "Erro ao carregar OS");
     }
   }
 
-  function handleCheckboxChange(valor, lista, setLista) {
-    if (lista.includes(valor)) {
-      setLista(lista.filter((item) => item !== valor));
-    } else {
-      setLista([...lista, valor]);
-    }
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (outroProcesso && !textoOutroProcesso.trim()) {
+      toast.error("Informe o outro processo");
+      return;
+    }
+
+    if (outroMaterial && !textoOutroMaterial.trim()) {
+      toast.error("Informe o outro material");
+      return;
+    }
+
+    const processosFinal =
+      outroProcesso && textoOutroProcesso.trim()
+        ? [...processos, `Outro: ${textoOutroProcesso.trim()}`]
+        : processos;
+
+    const materiaisFinal =
+      outroMaterial && textoOutroMaterial.trim()
+        ? [...materiais, `Outro: ${textoOutroMaterial.trim()}`]
+        : materiais;
+
+    if (processosFinal.length === 0) {
+      toast.error("Selecione ao menos um processo");
+      return;
+    }
+
+    if (materiaisFinal.length === 0) {
+      toast.error("Selecione ao menos um material");
+      return;
+    }
 
     try {
       const dadosAtualizados = {
         tipo_solicitante: tipoSolicitante,
         setor_interno: tipoSolicitante === "interno" ? setorInterno : null,
         solicitante_externo:
-          tipoSolicitante === "externo" ? solicitanteExterno : null,
-        contato: contato || null,
-        nome_projeto: nomeProjeto,
-        descricao_projeto: descricaoProjeto,
-        medida_final: medidaFinal,
+          tipoSolicitante === "externo" ? solicitanteExterno.trim() : null,
+        contato: contato.trim() ? contato.trim() : null,
+        nome_projeto: nomeProjeto.trim(),
+        descricao_projeto: descricaoProjeto.trim(),
+        medida_final: medidaFinal.trim(),
         quantidade: Number(quantidade),
         manipulacao_arquivo: manipulacaoArquivo === "1",
-        processos:
-          outroProcesso && textoOutroProcesso.trim()
-            ? [...processos, `Outro: ${textoOutroProcesso}`].join(", ")
-            : processos.join(", "),
-        materiais:
-          outroMaterial && textoOutroMaterial.trim()
-            ? [...materiais, `Outro: ${textoOutroMaterial}`].join(", ")
-            : materiais.join(", "),
-        observacoes
+        processos: processosFinal.join(", "),
+        materiais: materiaisFinal.join(", "),
+        observacoes: observacoes.trim() ? observacoes.trim() : null
       };
 
       await api.put(`/ordens/${id}`, dadosAtualizados);
@@ -164,23 +198,6 @@ export default function EditarOS() {
       console.error(error);
       toast.error(error?.response?.data?.erro || "Erro ao atualizar OS");
     }
-  }
-
-  if (statusAtual && statusAtual !== "pendente") {
-    return (
-      <div className="container-os">
-        <form className="cadastro-os-form">
-          <div className="topo-cadastro-os">
-            <h2>Editar Ordem de Serviço</h2>
-            <button type="button" onClick={() => navigate(`/ordens/${id}`)}>
-              Voltar
-            </button>
-          </div>
-
-          <p>Somente ordens pendentes podem ser editadas.</p>
-        </form>
-      </div>
-    );
   }
 
   return (
@@ -276,6 +293,7 @@ export default function EditarOS() {
           type="text"
           value={medidaFinal}
           onChange={(e) => setMedidaFinal(e.target.value)}
+          required
         />
 
         <label>
