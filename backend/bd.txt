@@ -20,7 +20,7 @@ CREATE TABLE ordens_servico (
 
     nome_projeto VARCHAR(150) NOT NULL,
     descricao_projeto TEXT NOT NULL,
-    medida_final VARCHAR(100) NULL,
+    medida_final VARCHAR(100) NOT NULL,
     quantidade INT NOT NULL,
 
     manipulacao_arquivo BOOLEAN NOT NULL DEFAULT 0,
