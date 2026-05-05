@@ -214,6 +214,31 @@ O Vite exibirá no terminal o endereço para acessar a aplicação, geralmente:
 http://localhost:5173
 ```
 
+## ⚡ Execução rápida (Windows)
+
+Para facilitar a execução do sistema, o projeto inclui um script automatizado:
+
+```bash
+start.bat
+```
+
+### ▶️ Como usar
+
+Basta dar duplo clique no arquivo start.bat na raiz do projeto.
+
+O script irá automaticamente:
+
+- Iniciar o backend;
+- Iniciar o frontend;
+- Abrir o navegador na aplicação.
+
+### Observações
+
+- Funciona apenas em ambiente Windows;
+- É necessário já ter executado o npm install nas pastas backend e projeto;
+- O arquivo utiliza caminhos relativos, funcionando em qualquer máquina mantendo a estrutura do projeto;
+- Caso alguma porta já esteja em uso, pode ser necessário encerrar processos manualmente.
+
 ## 🔗 Principais rotas da aplicação
 
 ### Rotas do frontend
