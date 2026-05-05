@@ -136,7 +136,6 @@ Senha: 1234
 Na pasta `backend`, crie um arquivo `.env` com base no arquivo `.env.example`:
 
 ```env
-PORT=3001
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=sua_senha_do_mysql
