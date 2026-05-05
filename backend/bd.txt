@@ -7,7 +7,8 @@ CREATE TABLE usuarios (
     email VARCHAR(120) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     tipo ENUM('funcionario', 'admin') NOT NULL DEFAULT 'funcionario',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo BOOLEAN NOT NULL DEFAULT 1;
 );
 
 CREATE TABLE ordens_servico (
@@ -42,9 +43,6 @@ CREATE TABLE ordens_servico (
 
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
-
-ALTER TABLE usuarios
-ADD COLUMN ativo BOOLEAN NOT NULL DEFAULT 1;
 
 INSERT INTO usuarios (nome, email, senha, tipo)
 VALUES ('Administrador', 'admin@admin.com', '$2a$10$KYZCEVktX4/sVVRr6e1IOuq2n4jT/JVEuWR7IzZ2Ji8avRB/i6VAy', 'admin');
