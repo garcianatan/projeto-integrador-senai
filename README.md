@@ -311,7 +311,6 @@ O backend utiliza a biblioteca `pdfkit` para gerar arquivos PDF. O sistema permi
 - Recuperação de senha por e-mail;
 - Dashboard com gráficos e indicadores;
 - Histórico detalhado de alterações nas ordens de serviço;
-- Diferentes níveis de permissão para usuários;
 - Deploy completo com frontend, backend e banco de dados online.
 
 ## 👨‍💻 Autor
