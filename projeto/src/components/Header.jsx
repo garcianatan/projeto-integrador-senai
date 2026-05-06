@@ -24,7 +24,7 @@ export default function Header({ usuario, onLogout }) {
     };
   }, []);
 
-  const inicial = usuario?.nome ? usuario.nome.charAt(0).toUpperCase() : "U";
+  const inicial = usuario?.nome ? usuario.nome.trim().charAt(0).toUpperCase() : "U";
 
   function abrirModalSair() {
     setMenuAberto(false);

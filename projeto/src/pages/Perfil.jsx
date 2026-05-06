@@ -34,8 +34,8 @@ export default function Perfil() {
 
     try {
       await api.put(`/usuarios/${usuarioLogado.id}/perfil`, {
-        nome,
-        email
+        nome: nome.trim(),
+        email: email.trim()
       });
 
       if (novaSenha.trim()) {

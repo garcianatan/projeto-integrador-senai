@@ -44,8 +44,8 @@ export default function EditarUsuario() {
 
     try {
       await api.put(`/usuarios/${id}`, {
-        nome,
-        email,
+        nome: nome.trim(),
+        email: email.trim(),
         tipo
       });
 

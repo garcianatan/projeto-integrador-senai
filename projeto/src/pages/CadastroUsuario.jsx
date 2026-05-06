@@ -17,8 +17,8 @@ export default function CadastroUsuario() {
 
     try {
       const resposta = await api.post("/auth/register", {
-        nome,
-        email,
+        nome: nome.trim(),
+        email: email.trim(),
         senha,
         tipo
       });
