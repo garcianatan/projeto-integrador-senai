@@ -3,33 +3,36 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./CadastroOS.css";
 import toast from "react-hot-toast";
-
+import ConfirmModal from "../components/ConfirmModal";
+ 
 export default function CadastroOS() {
   const navigate = useNavigate();
-
+ 
+  const [modalSairAberto, setModalSairAberto] = useState(false);
+ 
   const [tipoSolicitante, setTipoSolicitante] = useState("");
   const [setorInterno, setSetorInterno] = useState("");
   const [solicitanteExterno, setSolicitanteExterno] = useState("");
   const [contato, setContato] = useState("");
-
+ 
   const [nomeProjeto, setNomeProjeto] = useState("");
   const [descricaoProjeto, setDescricaoProjeto] = useState("");
   const [medidaFinal, setMedidaFinal] = useState("");
   const [quantidade, setQuantidade] = useState("");
-
+ 
   const [manipulacaoArquivo, setManipulacaoArquivo] = useState("");
-
+ 
   const [processos, setProcessos] = useState([]);
   const [materiais, setMateriais] = useState([]);
-
+ 
   const [outroProcesso, setOutroProcesso] = useState(false);
   const [textoOutroProcesso, setTextoOutroProcesso] = useState("");
-
+ 
   const [outroMaterial, setOutroMaterial] = useState(false);
   const [textoOutroMaterial, setTextoOutroMaterial] = useState("");
-
+ 
   const [observacoes, setObservacoes] = useState("");
-
+ 
   const listaProcessos = [
     "Fechamento de arquivo",
     "Impressão UV",
@@ -42,7 +45,7 @@ export default function CadastroOS() {
     "Corte de placas",
     "Programação em arduino"
   ];
-
+ 
   const listaMateriais = [
     "Acrílico 3 mm",
     "Acrílico 5 mm",
@@ -59,7 +62,7 @@ export default function CadastroOS() {
     "PETG",
     "Resina"
   ];
-
+ 
   function handleCheckboxChange(valor, lista, setLista) {
     if (lista.includes(valor)) {
       setLista(lista.filter((item) => item !== valor));
@@ -67,7 +70,7 @@ export default function CadastroOS() {
       setLista([...lista, valor]);
     }
   }
-
+ 
   function limparFormulario() {
     setTipoSolicitante("");
     setSetorInterno("");
@@ -86,48 +89,94 @@ export default function CadastroOS() {
     setTextoOutroMaterial("");
     setObservacoes("");
   }
-
+ 
+  function campoFoiPreenchido(valor) {
+    if (Array.isArray(valor)) {
+      return valor.length > 0;
+    }
+ 
+    if (typeof valor === "boolean") {
+      return valor === true;
+    }
+ 
+    if (valor === null || valor === undefined) {
+      return false;
+    }
+ 
+    return String(valor).trim() !== "";
+  }
+ 
+  function temFormularioPreenchido() {
+    return [
+      tipoSolicitante,
+      setorInterno,
+      solicitanteExterno,
+      contato,
+      nomeProjeto,
+      descricaoProjeto,
+      medidaFinal,
+      quantidade,
+      manipulacaoArquivo,
+      processos,
+      materiais,
+      outroProcesso,
+      textoOutroProcesso,
+      outroMaterial,
+      textoOutroMaterial,
+      observacoes
+    ].some(campoFoiPreenchido);
+  }
+ 
+  function handleVoltar() {
+    if (temFormularioPreenchido()) {
+      setModalSairAberto(true);
+      return;
+    }
+ 
+    navigate("/ordens");
+  }
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+ 
     const usuarioLogado = JSON.parse(sessionStorage.getItem("usuario"));
-
+ 
     if (!usuarioLogado) {
       toast.error("Usuário não encontrado. Faça login novamente.");
       navigate("/login");
       return;
     }
-
+ 
     if (outroProcesso && !textoOutroProcesso.trim()) {
       toast.error("Informe o outro processo");
       return;
     }
-
+ 
     if (outroMaterial && !textoOutroMaterial.trim()) {
       toast.error("Informe o outro material");
       return;
     }
-
+ 
     const processosFinal =
       outroProcesso && textoOutroProcesso.trim()
         ? [...processos, `Outro: ${textoOutroProcesso.trim()}`]
         : processos;
-
+ 
     const materiaisFinal =
       outroMaterial && textoOutroMaterial.trim()
         ? [...materiais, `Outro: ${textoOutroMaterial.trim()}`]
         : materiais;
-
+ 
     if (processosFinal.length === 0) {
       toast.error("Selecione ao menos um processo");
       return;
     }
-
+ 
     if (materiaisFinal.length === 0) {
       toast.error("Selecione ao menos um material");
       return;
     }
-
+ 
     try {
       const novaOS = {
         tipo_solicitante: tipoSolicitante,
@@ -144,9 +193,9 @@ export default function CadastroOS() {
         materiais: materiaisFinal.join(", "),
         observacoes: observacoes.trim() ? observacoes.trim() : null
       };
-
+ 
       const resposta = await api.post("/ordens", novaOS);
-
+ 
       toast.success(resposta.data.mensagem);
       limparFormulario();
       navigate("/ordens");
@@ -157,19 +206,20 @@ export default function CadastroOS() {
       );
     }
   };
-
+ 
   return (
     <div className="container-os">
       <form className="cadastro-os-form" onSubmit={handleSubmit}>
         <div className="topo-cadastro-os">
           <h2>Cadastro de Ordem de Serviço</h2>
-          <button type="button" onClick={() => navigate("/ordens")}>
+ 
+          <button type="button" onClick={handleVoltar}>
             Voltar
           </button>
         </div>
-
+ 
         <h3>Dados do Solicitante</h3>
-
+ 
         <label>
           Tipo de solicitante <span className="campo-obrigatorio">*</span>
         </label>
@@ -182,7 +232,7 @@ export default function CadastroOS() {
           <option value="interno">Interno</option>
           <option value="externo">Externo</option>
         </select>
-
+ 
         {tipoSolicitante === "interno" && (
           <>
             <label>
@@ -201,7 +251,7 @@ export default function CadastroOS() {
             </select>
           </>
         )}
-
+ 
         {tipoSolicitante === "externo" && (
           <>
             <label>
@@ -215,16 +265,16 @@ export default function CadastroOS() {
             />
           </>
         )}
-
+ 
         <label>Contato (opcional)</label>
         <input
           type="text"
           value={contato}
           onChange={(e) => setContato(e.target.value)}
         />
-
+ 
         <h3>Dados do Projeto</h3>
-
+ 
         <label>
           Nome do projeto <span className="campo-obrigatorio">*</span>
         </label>
@@ -234,7 +284,7 @@ export default function CadastroOS() {
           onChange={(e) => setNomeProjeto(e.target.value)}
           required
         />
-
+ 
         <label>
           Descrição do projeto <span className="campo-obrigatorio">*</span>
         </label>
@@ -243,7 +293,7 @@ export default function CadastroOS() {
           onChange={(e) => setDescricaoProjeto(e.target.value)}
           required
         />
-
+ 
         <label>
           Medida final <span className="campo-obrigatorio">*</span>
         </label>
@@ -253,7 +303,7 @@ export default function CadastroOS() {
           onChange={(e) => setMedidaFinal(e.target.value)}
           required
         />
-
+ 
         <label>
           Quantidade <span className="campo-obrigatorio">*</span>
         </label>
@@ -263,15 +313,16 @@ export default function CadastroOS() {
           value={quantidade}
           onChange={(e) => {
             const valor = e.target.value;
+ 
             if (valor === "" || Number(valor) >= 1) {
               setQuantidade(valor);
             }
           }}
           required
         />
-
+ 
         <h3>Arquivo</h3>
-
+ 
         <label>
           Necessita manipulação do arquivo?{" "}
           <span className="campo-obrigatorio">*</span>
@@ -285,11 +336,11 @@ export default function CadastroOS() {
           <option value="1">Sim</option>
           <option value="0">Não</option>
         </select>
-
+ 
         <h3>
           Processos Envolvidos <span className="campo-obrigatorio">*</span>
         </h3>
-
+ 
         {listaProcessos.map((processo) => (
           <div className="checkbox-item" key={processo}>
             <label>
@@ -304,7 +355,7 @@ export default function CadastroOS() {
             </label>
           </div>
         ))}
-
+ 
         <div className="checkbox-item">
           <label>
             <input
@@ -312,6 +363,7 @@ export default function CadastroOS() {
               checked={outroProcesso}
               onChange={(e) => {
                 setOutroProcesso(e.target.checked);
+ 
                 if (!e.target.checked) {
                   setTextoOutroProcesso("");
                 }
@@ -320,7 +372,7 @@ export default function CadastroOS() {
             Outro
           </label>
         </div>
-
+ 
         {outroProcesso && (
           <>
             <label>
@@ -335,11 +387,11 @@ export default function CadastroOS() {
             />
           </>
         )}
-
+ 
         <h3>
           Materiais Utilizados <span className="campo-obrigatorio">*</span>
         </h3>
-
+ 
         {listaMateriais.map((material) => (
           <div className="checkbox-item" key={material}>
             <label>
@@ -354,7 +406,7 @@ export default function CadastroOS() {
             </label>
           </div>
         ))}
-
+ 
         <div className="checkbox-item">
           <label>
             <input
@@ -362,6 +414,7 @@ export default function CadastroOS() {
               checked={outroMaterial}
               onChange={(e) => {
                 setOutroMaterial(e.target.checked);
+ 
                 if (!e.target.checked) {
                   setTextoOutroMaterial("");
                 }
@@ -370,7 +423,7 @@ export default function CadastroOS() {
             Outro
           </label>
         </div>
-
+ 
         {outroMaterial && (
           <>
             <label>
@@ -385,17 +438,27 @@ export default function CadastroOS() {
             />
           </>
         )}
-
+ 
         <h3>Observações (opcional)</h3>
         <textarea
           value={observacoes}
           onChange={(e) => setObservacoes(e.target.value)}
         />
-
+ 
         <div className="acoes-cadastro-os">
           <button type="submit">Salvar OS</button>
         </div>
       </form>
+ 
+      <ConfirmModal
+        aberto={modalSairAberto}
+        titulo="Sair sem salvar?"
+        mensagem="Existem dados preenchidos no formulário. Se você sair agora, as informações serão perdidas."
+        textoCancelar="Continuar preenchendo"
+        textoConfirmar="Sair sem salvar"
+        onCancel={() => setModalSairAberto(false)}
+        onConfirm={() => navigate("/ordens")}
+      />
     </div>
   );
 }
