@@ -202,16 +202,36 @@ Instale as dependências:
 npm install
 ```
 
-Inicie o projeto:
+Gere a build do front:
+
+```bash
+npm run build
+```
+
+Acessando este link no navegador, o projeto será executado:
+
+```txt
+http://localhost:3001
+```
+
+## OBS: Alterações no Front
+
+Caso faça alguma alteração no front, use:
 
 ```bash
 npm run dev
 ```
 
-O Vite exibirá no terminal o endereço para acessar a aplicação, geralmente:
+O Vite exibirá no terminal o endereço para acessar a aplicação com suas alterações, geralmente:
 
 ```txt
 http://localhost:5173
+```
+
+Depois das modificações serem concluídas, execute novamente o comando abaixo para gerar a build:
+
+```bash
+npm run build
 ```
 
 ## ⚡ Execução rápida (Windows)
