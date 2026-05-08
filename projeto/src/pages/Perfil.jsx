@@ -12,6 +12,7 @@ export default function Perfil() {
   const [email, setEmail] = useState("");
   const [tipo, setTipo] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
+  const [mostrarAvisoSenha, setMostrarAvisoSenha] = useState(false);
 
   useEffect(() => {
     carregarPerfil();
@@ -91,10 +92,18 @@ export default function Perfil() {
         <input
           type="password"
           value={novaSenha}
+          onFocus={() => setMostrarAvisoSenha(true)}
+          onBlur={() => setMostrarAvisoSenha(false)}
           onChange={(e) => setNovaSenha(e.target.value.replace(/\s/g, ""))}
           placeholder="Preencha apenas se quiser alterar"
           minLength={6}
         />
+
+        {mostrarAvisoSenha && (
+          <span className="aviso-senha">
+            Mínimo de 6 caracteres e sem espaços
+          </span>
+        )}
 
         <div className="acoes-perfil">
           <button type="submit">Salvar alterações</button>

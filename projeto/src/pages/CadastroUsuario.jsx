@@ -11,6 +11,7 @@ export default function CadastroUsuario() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [tipo, setTipo] = useState("funcionario");
+  const [mostrarAvisoSenha, setMostrarAvisoSenha] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -56,10 +57,18 @@ export default function CadastroUsuario() {
         <input
           type="password"
           value={senha}
+          onFocus={() => setMostrarAvisoSenha(true)}
+          onBlur={() => setMostrarAvisoSenha(false)}
           onChange={(e) => setSenha(e.target.value.replace(/\s/g, ""))}
           required
           minLength={6}
         />
+
+        {mostrarAvisoSenha && (
+          <span className="aviso-senha">
+            Mínimo de 6 caracteres e sem espaços
+          </span>
+        )}
 
         <label>Tipo</label>
         <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
