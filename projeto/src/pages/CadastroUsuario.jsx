@@ -12,10 +12,16 @@ export default function CadastroUsuario() {
   const [senha, setSenha] = useState("");
   const [tipo, setTipo] = useState("funcionario");
   const [mostrarAvisoSenha, setMostrarAvisoSenha] = useState(false);
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    
+
+    if (senha !== confirmarSenha) {
+      toast.error("As senhas não coincidem");
+      return;
+    }
+
     try {
       const resposta = await api.post("/auth/register", {
         nome: nome.trim(),
@@ -69,6 +75,18 @@ export default function CadastroUsuario() {
             Mínimo de 6 caracteres e sem espaços
           </span>
         )}
+
+        <label>Confirmar senha</label>
+
+        <input
+          type="password"
+          value={confirmarSenha}
+          onChange={(e) =>
+            setConfirmarSenha(e.target.value.replace(/\s/g, ""))
+          }
+          required
+          minLength={6}
+        />
 
         <label>Tipo</label>
         <select value={tipo} onChange={(e) => setTipo(e.target.value)}>

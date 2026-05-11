@@ -15,6 +15,8 @@ export default function EditarUsuario() {
   const [tipo, setTipo] = useState("funcionario");
   const [novaSenha, setNovaSenha] = useState("");
   const [mostrarAvisoSenha, setMostrarAvisoSenha] = useState(false);
+  const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   useEffect(() => {
     carregarUsuario();
@@ -41,6 +43,14 @@ export default function EditarUsuario() {
     ) {
       toast.error("Você não pode alterar seu próprio tipo de admin");
       return;
+    }
+
+    if (novaSenha.length > 0) {
+
+      if (novaSenha !== confirmarSenha) {
+        toast.error("As senhas não coincidem");
+        return;
+      }
     }
 
     try {
@@ -101,7 +111,14 @@ export default function EditarUsuario() {
           value={novaSenha}
           onFocus={() => setMostrarAvisoSenha(true)}
           onBlur={() => setMostrarAvisoSenha(false)}
-          onChange={(e) => setNovaSenha(e.target.value.replace(/\s/g, ""))}
+          onChange={(e) => {
+            const valor = e.target.value.replace(/\s/g, "");
+            setNovaSenha(valor);
+            setMostrarConfirmarSenha(valor.length > 0);
+            if (valor.length === 0) {
+              setConfirmarSenha("");
+            }
+          }}
           placeholder="Preencha apenas se quiser alterar"
           minLength={6}
         />
@@ -110,6 +127,21 @@ export default function EditarUsuario() {
           <span className="aviso-senha">
             Mínimo de 6 caracteres e sem espaços
           </span>
+        )}
+
+        {mostrarConfirmarSenha && (
+          <>
+            <label>Confirmar nova senha</label>
+
+            <input
+              type="password"
+              value={confirmarSenha}
+              onChange={(e) =>
+                setConfirmarSenha(e.target.value.replace(/\s/g, ""))
+              }
+              minLength={6}
+            />
+          </>
         )}
 
         <div className="acoes-cadastro-usuario">

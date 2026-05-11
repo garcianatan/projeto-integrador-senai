@@ -13,6 +13,8 @@ export default function Perfil() {
   const [tipo, setTipo] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [mostrarAvisoSenha, setMostrarAvisoSenha] = useState(false);
+  const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   useEffect(() => {
     carregarPerfil();
@@ -32,6 +34,14 @@ export default function Perfil() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (novaSenha.length > 0) {
+
+      if (novaSenha !== confirmarSenha) {
+        toast.error("As senhas não coincidem");
+        return;
+      }
+    }
 
     try {
       await api.put(`/usuarios/${usuarioLogado.id}/perfil`, {
@@ -94,7 +104,14 @@ export default function Perfil() {
           value={novaSenha}
           onFocus={() => setMostrarAvisoSenha(true)}
           onBlur={() => setMostrarAvisoSenha(false)}
-          onChange={(e) => setNovaSenha(e.target.value.replace(/\s/g, ""))}
+          onChange={(e) => {
+            const valor = e.target.value.replace(/\s/g, "");
+            setNovaSenha(valor);
+            setMostrarConfirmarSenha(valor.length > 0);
+            if (valor.length === 0) {
+              setConfirmarSenha("");
+            }
+          }}
           placeholder="Preencha apenas se quiser alterar"
           minLength={6}
         />
@@ -103,6 +120,21 @@ export default function Perfil() {
           <span className="aviso-senha">
             Mínimo de 6 caracteres e sem espaços
           </span>
+        )}
+
+        {mostrarConfirmarSenha && (
+          <>
+            <label>Confirmar nova senha</label>
+
+            <input
+              type="password"
+              value={confirmarSenha}
+              onChange={(e) =>
+                setConfirmarSenha(e.target.value.replace(/\s/g, ""))
+              }
+              minLength={6}
+            />
+          </>
         )}
 
         <div className="acoes-perfil">
