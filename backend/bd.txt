@@ -8,7 +8,7 @@ CREATE TABLE usuarios (
     senha VARCHAR(255) NOT NULL,
     tipo ENUM('funcionario', 'admin') NOT NULL DEFAULT 'funcionario',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ativo BOOLEAN NOT NULL DEFAULT 1;
+    ativo BOOLEAN NOT NULL DEFAULT 1
 );
 
 CREATE TABLE ordens_servico (
